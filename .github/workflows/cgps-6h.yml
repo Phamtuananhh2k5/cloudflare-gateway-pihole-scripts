@@ -33,7 +33,7 @@ jobs:
           BLOCKLIST_URLS: ${{ vars.BLOCKLIST_URLS }}
 
       - name: Force empty allowlist (no auto-whitelist)
-        run: : > allowlist.txt
+        run: truncate -s 0 allowlist.txt
 
       - name: Sync Cloudflare lists
         run: node cf_list_create.js
