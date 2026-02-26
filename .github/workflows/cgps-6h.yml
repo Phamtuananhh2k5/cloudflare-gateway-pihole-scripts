@@ -1,0 +1,51 @@
+name: CGPS 6h Sync
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cgps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout upstream CGPS
+        uses: actions/checkout@v6
+        with:
+          repository: mrrfv/cloudflare-gateway-pihole-scripts
+          ref: v1
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Download lists
+        run: node download_lists.js
+        env:
+          BLOCKLIST_URLS: ${{ vars.BLOCKLIST_URLS }}
+          ALLOWLIST_URLS: ${{ vars.ALLOWLIST_URLS }}
+
+      - name: Sync Cloudflare lists
+        run: node cf_list_create.js
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_LIST_ITEM_LIMIT: ${{ vars.CLOUDFLARE_LIST_ITEM_LIMIT }}
+          DRY_RUN: "0"
+
+      - name: Upsert DNS block rule
+        run: node cf_gateway_rule_create.js
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BLOCK_PAGE_ENABLED: ${{ vars.BLOCK_PAGE_ENABLED }}
