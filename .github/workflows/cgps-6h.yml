@@ -27,11 +27,13 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Download lists
-        run: node download_lists.js
+      - name: Download blocklists only
+        run: node download_lists.js blocklist
         env:
           BLOCKLIST_URLS: ${{ vars.BLOCKLIST_URLS }}
-          ALLOWLIST_URLS: ${{ vars.ALLOWLIST_URLS }}
+
+      - name: Force empty allowlist (no auto-whitelist)
+        run: : > allowlist.txt
 
       - name: Sync Cloudflare lists
         run: node cf_list_create.js
