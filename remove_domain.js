@@ -1,10 +1,24 @@
 import { getZeroTrustLists } from "./lib/api.js";
 import { requestGateway } from "./lib/helpers.js";
 
+// List all gateway rules
+const { result: rules } = await requestGateway('/gateway/rules', { method: 'GET' });
+console.log("=== Current Gateway Rules ===");
+for (const rule of rules) {
+  console.log(JSON.stringify({
+    name: rule.name,
+    action: rule.action,
+    traffic: rule.traffic ? rule.traffic.substring(0,200) : null,
+    priority: rule.priority,
+    enabled: rule.enabled
+  }, null, 2));
+}
+
 const DOMAIN = "cdn.bootcdn.net";
 const { result: lists } = await getZeroTrustLists();
 const cgpsLists = lists.filter(l => l.name.startsWith("CGPS List"));
 
+console.log(`\n=== Checking ${cgpsLists.length} CGPS lists for ${DOMAIN} ===`);
 let removed = false;
 for (const list of cgpsLists) {
   let page = 1;
