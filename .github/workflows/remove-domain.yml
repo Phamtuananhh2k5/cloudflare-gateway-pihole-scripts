@@ -12,38 +12,7 @@ jobs:
           node-version: 'lts/*'
       - run: npm ci
       - name: Remove domain
-        run: |
-          node -e '
-          import { getZeroTrustLists, getZeroTrustListItems } from "./lib/api.js";
-          import { requestGateway } from "./lib/helpers.js";
-
-          const DOMAIN = "cdn.bootcdn.net";
-          const { result: lists } = await getZeroTrustLists();
-          const cgpsLists = lists.filter(l => l.name.startsWith("CGPS List"));
-
-          for (const list of cgpsLists) {
-            let page = 1;
-            let found = false;
-            while (true) {
-              const { result: items } = await requestGateway(`/lists/${list.id}/items?per_page=1000&page=${page}`, { method: "GET" });
-              if (!items || items.length === 0) break;
-              const match = items.find(i => i.value === DOMAIN);
-              if (match) {
-                console.log(`Found ${DOMAIN} in list ${list.name} (id: ${list.id}), removing...`);
-                await requestGateway(`/lists/${list.id}/items`, {
-                  method: "PATCH",
-                  body: JSON.stringify({ remove: [{ value: DOMAIN }] }),
-                });
-                console.log("Removed successfully!");
-                found = true;
-                break;
-              }
-              page++;
-            }
-            if (found) break;
-          }
-          console.log("Done");
-          '
+        run: node remove_domain.js
         env:
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
