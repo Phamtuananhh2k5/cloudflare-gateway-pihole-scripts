@@ -33,8 +33,7 @@ jobs:
           BLOCKLIST_URLS: ${{ vars.BLOCKLIST_URLS }}
 
       - name: Setup allowlist
-        run: echo "cdn.bootcdn.net
-static.cloudflareinsights.com" > allowlist.txt
+        run: printf "cdn.bootcdn.net\nstatic.cloudflareinsights.com" > allowlist.txt
 
       - name: Sync Cloudflare lists
         run: node cf_list_create.js
