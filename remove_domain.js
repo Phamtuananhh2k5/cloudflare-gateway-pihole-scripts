@@ -2,7 +2,7 @@ import { getZeroTrustLists } from "./lib/api.js";
 import { requestGateway } from "./lib/helpers.js";
 
 // List all gateway rules
-const { result: rules } = await requestGateway('/gateway/rules', { method: 'GET' });
+const { result: rules } = await requestGateway('/rules', { method: 'GET' });
 console.log("=== Current Gateway Rules ===");
 for (const rule of rules) {
   console.log(JSON.stringify({
