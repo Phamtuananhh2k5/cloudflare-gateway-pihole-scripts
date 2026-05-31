@@ -9,7 +9,7 @@ jobs:
         with:
           node-version: 'lts/*'
       - run: npm ci
-      - run: node verify_rule.js
+      - run: node check_firewall.js
         env:
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
