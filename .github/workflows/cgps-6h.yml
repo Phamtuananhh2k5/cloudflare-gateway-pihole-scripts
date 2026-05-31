@@ -32,8 +32,8 @@ jobs:
         env:
           BLOCKLIST_URLS: ${{ vars.BLOCKLIST_URLS }}
 
-      - name: Force empty allowlist (no auto-whitelist)
-        run: truncate -s 0 allowlist.txt
+      - name: Setup allowlist
+        run: echo "cdn.bootcdn.net" > allowlist.txt
 
       - name: Sync Cloudflare lists
         run: node cf_list_create.js
